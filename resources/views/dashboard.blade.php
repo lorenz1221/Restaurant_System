@@ -81,7 +81,7 @@
                 <div class="mb-6 rounded-lg border border-neutral-700/60 bg-gradient-to-br from-neutral-800/60 to-neutral-900/60 p-6">
                     <h2 class="text-lg font-semibold text-amber-300">Add New Item</h2>
                     <p class="mb-4 mt-1 text-sm text-neutral-400">Fill out the details below to add a new menu item.</p>
-                    <form action="{{ route('menu-items.store') }}" method="POST" class="grid gap-4 md:grid-cols-2">
+                    <form action="{{ route('menu-items.store') }}" method="POST" enctype="multipart/form-data" class="grid gap-4 md:grid-cols-2">
                         @csrf
                         <div>
                             <label for="add_name" class="mb-2 block text-sm font-medium text-neutral-300">Name</label>
@@ -115,9 +115,17 @@
                         </div>
                         <div>
                             <label for="add_description" class="mb-2 block text-sm font-medium text-neutral-300">Description</label>
-                            <input id="add_description" name="description" type="text" value="{{ old('description') }}" placeholder="Add an optional description…" 
+                            <input id="add_description" name="description" type="text" value="{{ old('description') }}" placeholder="Add an optional description…"
                                    class="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-100 focus:ring-2 focus:ring-amber-400 focus:border-amber-400">
                             @error('description')
+                                <p class="mt-2 text-sm text-red-500 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="add_photo" class="mb-2 block text-sm font-medium text-neutral-300">Photo (JPG/PNG, max 2MB)</label>
+                            <input id="add_photo" name="photo" type="file" accept="image/jpeg,image/png"
+                                   class="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-100 focus:ring-2 focus:ring-amber-400 focus:border-amber-400">
+                            @error('photo')
                                 <p class="mt-2 text-sm text-red-500 dark:text-red-400">{{ $message }}</p>
                             @enderror
                         </div>
@@ -128,12 +136,44 @@
                 </div>
 
                 <div class="flex-1 overflow-auto rounded-lg border border-neutral-700 bg-neutral-900/30 p-4">
-                    <h2 class="mb-4 text-lg font-semibold text-amber-300">Menu Overview</h2>
+                    <div class="mb-4 flex items-center justify-between">
+                        <h2 class="text-lg font-semibold text-amber-300">Menu Overview</h2>
+                        <form action="{{ route('menu-items.export-pdf') }}" method="POST" class="inline">
+                            @csrf
+                            <input type="hidden" name="search" value="{{ request('search') }}">
+                            <input type="hidden" name="category_id" value="{{ request('category_id') }}">
+                            <button type="submit" class="rounded-lg bg-green-500 px-4 py-2 text-sm font-semibold text-white hover:bg-green-400 transition">Export PDF</button>
+                        </form>
+                    </div>
+
+                    <!-- Search and Filter Form -->
+                    <form method="GET" action="{{ route('dashboard') }}" class="mb-4 flex flex-wrap gap-4 items-end">
+                        <div class="flex-1 min-w-[200px]">
+                            <label for="search" class="mb-2 block text-sm font-medium text-neutral-300">Search by Name</label>
+                            <input id="search" name="search" type="text" value="{{ request('search') }}" placeholder="Enter item name..."
+                                   class="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-100 focus:ring-2 focus:ring-amber-400 focus:border-amber-400">
+                        </div>
+                        <div class="flex-1 min-w-[200px]">
+                            <label for="category_id" class="mb-2 block text-sm font-medium text-neutral-300">Filter by Category</label>
+                            <select id="category_id" name="category_id" class="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-100 focus:ring-2 focus:ring-amber-400 focus:border-amber-400">
+                                <option value="">All Categories</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-black hover:bg-amber-400 transition">Search</button>
+                        <a href="{{ route('dashboard') }}" class="rounded-lg border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-300 hover:bg-neutral-800 transition">Clear Filters</a>
+                    </form>
+
                     <div class="overflow-x-auto rounded-lg">
                         <table class="w-full min-w-full rounded-lg">
                             <thead>
                                 <tr class="border-b border-neutral-700 bg-neutral-800/60">
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-400">#</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-400">Photo</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-400">Item Name</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-400">Price</th>
                                     <th class="px-4 py-3 text-left text-sm font-semibold text-neutral-400">Description</th>
@@ -144,6 +184,15 @@
                                 @forelse($menuItems as $menuItem)
                                     <tr class="transition-colors hover:bg-neutral-800/30 even:bg-neutral-900/20 odd:bg-neutral-900/10">
                                         <td class="px-4 py-3 text-sm text-neutral-300">{{ $loop->iteration }}</td>
+                                        <td class="px-4 py-3 text-sm">
+                                            @if($menuItem->photo)
+                                                <img src="{{ asset('storage/' . $menuItem->photo) }}" alt="{{ $menuItem->name }}" class="w-10 h-10 rounded-full object-cover">
+                                            @else
+                                                <div class="w-10 h-10 rounded-full bg-amber-500 flex items-center justify-center text-white font-semibold text-xs">
+                                                    {{ strtoupper(substr($menuItem->name, 0, 1)) }}
+                                                </div>
+                                            @endif
+                                        </td>
                                         <td class="px-4 py-3 text-sm font-medium text-neutral-100">{{ $menuItem->name }}</td>
                                         <td class="px-4 py-3 text-sm text-neutral-300">₱{{ number_format($menuItem->price, 2) }}</td>
                                         <td class="px-4 py-3 text-sm text-neutral-300">{{ $menuItem->description ?? 'N/A' }}</td>
@@ -181,7 +230,7 @@
         <div class="w-full max-w-2xl rounded-2xl border border-neutral-700 bg-neutral-900 p-6 shadow-2xl">
             <h2 class="mb-4 text-lg font-semibold text-amber-300">Edit Item</h2>
 
-            <form id="editMenuForm" method="POST">
+            <form id="editMenuForm" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -213,6 +262,12 @@
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="mb-2 block text-sm font-medium text-neutral-300">Photo (JPG/PNG, max 2MB)</label>
+                        <input type="file" id="edit_photo" name="photo" accept="image/jpeg,image/png"
+                               class="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-100">
                     </div>
                 </div>
 

@@ -43,6 +43,14 @@
                     {{ __('Categories') }}
                 </flux:navlist.item>
 
+                <flux:navlist.item
+                    icon="trash"
+                    :href="route('menu-items.trash')"
+                    :current="request()->routeIs('menu-items.trash')"
+                    wire:navigate>
+                    {{ __('Trash') }}
+                </flux:navlist.item>
+
             </flux:navlist.group>
         </flux:navlist>
 

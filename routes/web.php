@@ -50,8 +50,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/menu-items', [MenuItemController::class, 'store'])->name('menu-items.store');
     // PUT for updating items
     Route::put('/menu-items/{menuItem}', [MenuItemController::class, 'update'])->name('menu-items.update');
-    // DELETE for removing items
+    // DELETE for removing items (soft delete)
     Route::delete('/menu-items/{menuItem}', [MenuItemController::class, 'destroy'])->name('menu-items.destroy');
+
+    // Trash management
+    Route::get('/menu-items/trash', [MenuItemController::class, 'trash'])->name('menu-items.trash');
+    Route::patch('/menu-items/{id}/restore', [MenuItemController::class, 'restore'])->name('menu-items.restore');
+    Route::delete('/menu-items/{id}/force-delete', [MenuItemController::class, 'forceDelete'])->name('menu-items.force-delete');
+
+    // PDF export
+    Route::post('/menu-items/export-pdf', [MenuItemController::class, 'exportPdf'])->name('menu-items.export-pdf');
 
     // Category Management (Secondary Management Page - Required Feature 3)
     // GET for displaying the categories index page
