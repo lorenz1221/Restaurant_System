@@ -122,9 +122,13 @@
                             @enderror
                         </div>
                         <div class="md:col-span-2">
-                            <label for="add_photo" class="mb-2 block text-sm font-medium text-neutral-300">Photo (JPG/PNG, max 2MB)</label>
-                            <input id="add_photo" name="photo" type="file" accept="image/jpeg,image/png"
-                                   class="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-100 focus:ring-2 focus:ring-amber-400 focus:border-amber-400">
+                            <label for="add_photo" class="mb-2 block text-sm font-medium text-neutral-300">Item Photo (Optional)</label>
+                            <label for="add_photo" class="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-3 shadow-md cursor-pointer hover:bg-neutral-750 transition">
+                                <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-blue-700 transition">Choose File</span>
+                                <span id="add_photo_text" class="text-neutral-400 text-sm">No file chosen</span>
+                            </label>
+                            <input id="add_photo" name="photo" type="file" accept="image/jpeg,image/png" class="hidden">
+                            <p class="mt-1 text-xs text-neutral-500">JPG, PNG or JPEG. Max 2MB.</p>
                             @error('photo')
                                 <p class="mt-2 text-sm text-red-500 dark:text-red-400">{{ $message }}</p>
                             @enderror
@@ -265,9 +269,13 @@
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="mb-2 block text-sm font-medium text-neutral-300">Photo (JPG/PNG, max 2MB)</label>
-                        <input type="file" id="edit_photo" name="photo" accept="image/jpeg,image/png"
-                               class="w-full rounded-lg border border-neutral-700 bg-neutral-900 px-4 py-2 text-sm text-neutral-100">
+                        <label for="edit_photo" class="mb-2 block text-sm font-medium text-neutral-300">Item Photo (Optional)</label>
+                        <label for="edit_photo" class="flex items-center justify-between bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-3 shadow-md cursor-pointer hover:bg-neutral-750 transition">
+                            <span class="bg-blue-600 text-white px-3 py-1 rounded text-sm font-medium hover:bg-blue-700 transition">Choose File</span>
+                            <span id="edit_photo_text" class="text-neutral-400 text-sm">No file chosen</span>
+                        </label>
+                        <input id="edit_photo" name="photo" type="file" accept="image/jpeg,image/png" class="hidden">
+                        <p class="mt-1 text-xs text-neutral-500">JPG, PNG or JPEG. Max 2MB.</p>
                     </div>
                 </div>
 
@@ -306,6 +314,17 @@
         modal.classList.add('hidden');
         modal.classList.remove('flex');
     }
+
+    // Update file input text when file is selected
+    document.getElementById('add_photo').addEventListener('change', function() {
+        const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+        document.getElementById('add_photo_text').textContent = fileName;
+    });
+
+    document.getElementById('edit_photo').addEventListener('change', function() {
+        const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
+        document.getElementById('edit_photo_text').textContent = fileName;
+    });
 </script>
 
 </x-layouts.app>
