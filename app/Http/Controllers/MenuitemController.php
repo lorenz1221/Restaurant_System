@@ -152,6 +152,24 @@ class MenuItemController extends Controller
     }
 
     /**
+     * Permanently delete all soft-deleted items.
+     */
+    public function forceDeleteAll()
+    {
+        $trashedItems = MenuItem::onlyTrashed()->get();
+
+        foreach ($trashedItems as $menuItem) {
+            // Delete photo if exists
+            if ($menuItem->photo) {
+                Storage::disk('public')->delete($menuItem->photo);
+            }
+            $menuItem->forceDelete();
+        }
+
+        return redirect()->route('menu-items.trash')->with('success', 'All trashed items permanently deleted.');
+    }
+
+    /**
      * Export filtered results to PDF.
      */
     public function exportPdf(Request $request)

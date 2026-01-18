@@ -50,13 +50,15 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/menu-items', [MenuItemController::class, 'store'])->name('menu-items.store');
     // PUT for updating items
     Route::put('/menu-items/{menuItem}', [MenuItemController::class, 'update'])->name('menu-items.update');
-    // DELETE for removing items (soft delete)
-    Route::delete('/menu-items/{menuItem}', [MenuItemController::class, 'destroy'])->name('menu-items.destroy');
 
     // Trash management
     Route::get('/menu-items/trash', [MenuItemController::class, 'trash'])->name('menu-items.trash');
     Route::patch('/menu-items/{id}/restore', [MenuItemController::class, 'restore'])->name('menu-items.restore');
     Route::delete('/menu-items/{id}/force-delete', [MenuItemController::class, 'forceDelete'])->name('menu-items.force-delete');
+    Route::delete('/menu-items/force-delete-all', [MenuItemController::class, 'forceDeleteAll'])->name('menu-items.force-delete-all');
+
+    // DELETE for removing items (soft delete) - placed after specific routes to avoid conflicts
+    Route::delete('/menu-items/{menuItem}', [MenuItemController::class, 'destroy'])->name('menu-items.destroy');
 
     // PDF export
     Route::post('/menu-items/export-pdf', [MenuItemController::class, 'exportPdf'])->name('menu-items.export-pdf');

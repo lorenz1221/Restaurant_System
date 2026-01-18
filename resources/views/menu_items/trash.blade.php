@@ -24,7 +24,16 @@
 
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg font-semibold text-amber-300">Trash - Soft Deleted Items</h2>
-                    <a href="{{ route('dashboard') }}" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-black hover:bg-amber-400 transition">Back to Dashboard</a>
+                    <div class="flex items-center gap-3">
+                        @if($trashedItems->count() > 0)
+                            <form action="{{ route('menu-items.force-delete-all') }}" method="POST" onsubmit="return confirm('Are you sure you want to permanently delete ALL items in trash? This action cannot be undone.')" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-500 transition">Delete All</button>
+                            </form>
+                        @endif
+                        <a href="{{ route('dashboard') }}" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-black hover:bg-amber-400 transition">Back to Dashboard</a>
+                    </div>
                 </div>
 
                 <div class="flex-1 overflow-auto rounded-lg border border-neutral-700 bg-neutral-900/30 p-4">
@@ -72,7 +81,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="7" class="px-4 py-8 text-center text-sm text-neutral-500">
+                                        <td colspan="6" class="px-4 py-8 text-center text-sm text-neutral-500">
                                             No items in trash. All items are active!
                                         </td>
                                     </tr>
